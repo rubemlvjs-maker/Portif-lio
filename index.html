@@ -1,0 +1,1498 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Rubem Lima Viegas — Automação e dados</title>
+  <meta name="description" content="Rubem Lima Viegas. Automação em Python, inventário e relatórios. Alguns projetos reais, com demonstração em dados fictícios.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Outfit:wght@380;460;560;640&display=swap" rel="stylesheet">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect fill='%23141210' width='64' height='64' rx='10'/%3E%3Ctext x='32' y='42' text-anchor='middle' font-family='Georgia' font-size='26' fill='%23f3ecdf'%3ERL%3C/text%3E%3C/svg%3E">
+  <style>
+    :root {
+      --bg: #ebe4d6;
+      --paper: #f7f2e8;
+      --ink: #1b1714;
+      --muted: #5f574d;
+      --line: #d4cbbd;
+      --copper: #c24e24;
+      --copper-dk: #8c3414;
+      --pine: #1d3b31;
+      --ok: #1d6a45;
+      --bad: #8d2e2e;
+      --warn: #8a5a12;
+      --dark: #141210;
+      --dark-2: #221e1a;
+      --cream: #f3ecdf;
+      --shadow: 0 16px 40px rgba(28, 22, 16, .08);
+      --serif: "Instrument Serif", Georgia, serif;
+      --sans: "Outfit", "Segoe UI", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: var(--sans);
+      font-size: 1.05rem;
+      line-height: 1.55;
+    }
+    img { max-width: 100%; }
+    a { color: inherit; }
+    button, input, select, textarea { font: inherit; color: inherit; }
+    :focus-visible { outline: 2px solid var(--copper); outline-offset: 3px; }
+    .skip {
+      position: absolute;
+      left: 1rem;
+      top: -4rem;
+      background: var(--cream);
+      padding: .5rem .8rem;
+      z-index: 10;
+    }
+    .skip:focus { top: 1rem; }
+
+    .nav {
+      position: sticky;
+      top: 0;
+      z-index: 5;
+      display: flex;
+      justify-content: space-between;
+      gap: 1rem;
+      align-items: center;
+      padding: .85rem 6vw;
+      background: rgba(20, 18, 16, .94);
+      color: var(--cream);
+      backdrop-filter: blur(10px);
+    }
+    .brand { display: flex; align-items: center; gap: .7rem; text-decoration: none; }
+    .mark {
+      width: 2.1rem;
+      height: 2.1rem;
+      display: grid;
+      place-items: center;
+      border: 1px solid rgba(243, 236, 223, .35);
+      font-family: var(--serif);
+      font-size: 1rem;
+    }
+    .brand small { display: block; color: #c9bfb1; font-size: .78rem; letter-spacing: .04em; }
+    .nav-links { display: flex; flex-wrap: wrap; gap: .35rem 1rem; }
+    .nav-links a { color: #efe7da; text-decoration: none; font-size: .95rem; }
+    .nav-links a:hover { color: white; }
+
+    .hero {
+      background:
+        radial-gradient(900px 420px at 90% -10%, rgba(194, 78, 36, .28), transparent 60%),
+        var(--dark);
+      color: var(--cream);
+      padding: 4.2rem 6vw 3.4rem;
+    }
+    .hero-grid {
+      max-width: 1120px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1.25fr .85fr;
+      gap: 3rem;
+      align-items: end;
+    }
+    .kicker {
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      font-size: .78rem;
+      color: #e4b5a2;
+      margin: 0 0 1rem;
+    }
+    h1 {
+      font-family: var(--serif);
+      font-weight: 400;
+      font-size: clamp(3.1rem, 7vw, 5.6rem);
+      line-height: .92;
+      margin: 0 0 1rem;
+    }
+    .lede {
+      font-family: var(--serif);
+      font-style: italic;
+      font-size: clamp(1.35rem, 2.4vw, 1.85rem);
+      line-height: 1.25;
+      margin: 0 0 1rem;
+      max-width: 38rem;
+    }
+    .hero p { margin: 0; color: #d9d0c3; max-width: 40rem; }
+    .hero-actions { display: flex; flex-wrap: wrap; gap: .7rem; margin-top: 1.6rem; }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid transparent;
+      text-decoration: none;
+      padding: .72rem 1rem;
+      cursor: pointer;
+      background: var(--copper);
+      color: white;
+    }
+    .btn:hover { background: var(--copper-dk); }
+    .btn.ghost {
+      background: transparent;
+      border-color: rgba(243, 236, 223, .4);
+      color: var(--cream);
+    }
+    .btn.ghost:hover { border-color: white; background: transparent; }
+    .btn.pine { background: var(--pine); }
+    .btn.pine:hover { background: #142b24; }
+    .btn.line {
+      background: transparent;
+      border-color: var(--line);
+      color: var(--ink);
+    }
+    .btn.line:hover { border-color: var(--ink); background: transparent; }
+
+    .pipe {
+      border: 1px solid rgba(243, 236, 223, .16);
+      background: rgba(255, 255, 255, .03);
+      padding: 1.1rem 1.15rem 1.2rem;
+    }
+    .pipe h2 {
+      margin: 0 0 .8rem;
+      font-size: .82rem;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      font-weight: 560;
+      color: #e4b5a2;
+    }
+    .pipe ol { list-style: none; margin: 0; padding: 0; }
+    .pipe li {
+      display: grid;
+      grid-template-columns: 1.6rem 1fr;
+      gap: .55rem;
+      padding: .48rem 0;
+      border-top: 1px solid rgba(243, 236, 223, .1);
+      color: #efe7da;
+    }
+    .pipe li span { color: #e4b5a2; font-variant-numeric: tabular-nums; }
+    @media (prefers-reduced-motion: no-preference) {
+      .pipe li { animation: rise .55s both; }
+      .pipe li:nth-child(2) { animation-delay: .08s; }
+      .pipe li:nth-child(3) { animation-delay: .16s; }
+      .pipe li:nth-child(4) { animation-delay: .24s; }
+      .pipe li:nth-child(5) { animation-delay: .32s; }
+    }
+    @keyframes rise {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: none; }
+    }
+
+    main { max-width: 1120px; margin: 0 auto; padding: 0 6vw 4rem; }
+    section { padding-top: 3.4rem; }
+    .section-title {
+      font-family: var(--serif);
+      font-size: clamp(2rem, 4vw, 3rem);
+      font-weight: 400;
+      line-height: 1;
+      margin: 0 0 .4rem;
+    }
+    .section-intro { margin: 0 0 1.3rem; color: var(--muted); max-width: 42rem; }
+
+    .facts {
+      display: grid;
+      grid-template-columns: 1.15fr .85fr;
+      gap: 1.2rem;
+      margin-top: -1.6rem;
+      position: relative;
+    }
+    .panel {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      box-shadow: var(--shadow);
+      padding: 1.25rem 1.3rem;
+    }
+    .facts ul, .fit ul { margin: .4rem 0 0; padding-left: 1.1rem; }
+    .facts li + li, .fit li + li { margin-top: .35rem; }
+    .eyebrow {
+      margin: 0 0 .35rem;
+      font-size: .78rem;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--copper-dk);
+    }
+    .note {
+      margin-top: 1rem;
+      padding: .9rem 1rem;
+      background: #f3e7d4;
+      border-left: 3px solid var(--copper);
+    }
+    .note p { margin: 0; }
+
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: .8rem;
+    }
+    .step {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      padding: 1rem;
+      min-height: 100%;
+    }
+    .step strong { display: block; font-family: var(--serif); font-size: 1.45rem; font-weight: 400; margin-bottom: .35rem; }
+    .step p { margin: 0; color: var(--muted); }
+
+    .filters { display: flex; flex-wrap: wrap; gap: .45rem; margin-bottom: 1rem; }
+    .chip {
+      background: transparent;
+      border: 1px solid var(--line);
+      padding: .4rem .75rem;
+      cursor: pointer;
+    }
+    .chip[aria-pressed="true"] { background: var(--ink); color: var(--cream); border-color: var(--ink); }
+
+    .cards { display: grid; grid-template-columns: 1fr 1fr; gap: .8rem; }
+    .card {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      padding: 0;
+    }
+    .card[open] { grid-column: 1 / -1; }
+    .card summary {
+      list-style: none;
+      cursor: pointer;
+      padding: 1.05rem 1.15rem 1.1rem;
+    }
+    .card summary::-webkit-details-marker { display: none; }
+    .card-top { display: flex; justify-content: space-between; gap: 1rem; align-items: start; }
+    .tag {
+      display: inline-block;
+      font-size: .75rem;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--pine);
+      margin-bottom: .35rem;
+    }
+    .card h3 { margin: 0 0 .35rem; font-size: 1.28rem; font-weight: 560; letter-spacing: -.01em; }
+    .card summary p { margin: 0; color: var(--muted); }
+    .plus {
+      width: 1.8rem;
+      height: 1.8rem;
+      border: 1px solid var(--line);
+      display: grid;
+      place-items: center;
+      flex: none;
+      font-family: var(--serif);
+      font-size: 1.3rem;
+      line-height: 1;
+    }
+    .card[open] .plus { background: var(--ink); color: var(--cream); border-color: var(--ink); }
+    .tech { display: flex; flex-wrap: wrap; gap: .35rem; margin-top: .8rem; }
+    .tech span, .pill {
+      font-size: .82rem;
+      padding: .15rem .45rem;
+      background: #efe7da;
+      border: 1px solid var(--line);
+    }
+    .case { padding: 0 1.15rem 1.2rem; display: grid; grid-template-columns: 1fr 1fr; gap: 1rem 1.5rem; }
+    .case h4 { margin: 0 0 .3rem; font-size: .95rem; }
+    .case p { margin: 0; color: #3c362f; }
+    .case ul { margin: .2rem 0 0; padding-left: 1.05rem; }
+    .case li + li { margin-top: .28rem; }
+
+    .lab {
+      background: var(--dark-2);
+      color: var(--cream);
+      padding: 1rem;
+    }
+    .lab-head { padding: .4rem .4rem 1rem; }
+    .lab-head .section-title, .lab-head .section-intro { color: var(--cream); }
+    .lab-head .section-intro { color: #cfc6b8; }
+    .tabs { display: flex; flex-wrap: wrap; gap: .4rem; margin-bottom: .8rem; }
+    .tabs button {
+      background: transparent;
+      color: #efe7da;
+      border: 1px solid rgba(243, 236, 223, .25);
+      padding: .5rem .75rem;
+      cursor: pointer;
+    }
+    .tabs button[aria-selected="true"] { background: var(--cream); color: var(--ink); border-color: var(--cream); }
+    .sheet { background: var(--paper); color: var(--ink); padding: 1rem; }
+    .controls, .split { display: grid; gap: .8rem; }
+    .controls { grid-template-columns: repeat(4, 1fr); margin-bottom: 1rem; }
+    .split { grid-template-columns: 280px 1fr; }
+    label { display: grid; gap: .3rem; font-size: .92rem; }
+    label span { color: var(--muted); }
+    input, select, textarea {
+      width: 100%;
+      background: white;
+      border: 1px solid var(--line);
+      padding: .55rem .6rem;
+    }
+    textarea { min-height: 220px; resize: vertical; }
+    .kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: .6rem; margin-bottom: 1rem; }
+    .kpi { background: white; border: 1px solid var(--line); padding: .75rem .8rem; }
+    .kpi b {
+      display: block;
+      font-family: var(--serif);
+      font-size: 1.8rem;
+      font-weight: 400;
+      line-height: 1;
+      margin-top: .2rem;
+    }
+    .bars { display: grid; gap: .45rem; }
+    .bar-row { display: grid; grid-template-columns: 5.2rem 1fr 3.2rem; gap: .5rem; align-items: center; font-size: .92rem; }
+    .track { height: .55rem; background: #e7dfd2; }
+    .fill { height: 100%; background: var(--pine); }
+    .fill.warn { background: var(--copper); }
+    table { width: 100%; border-collapse: collapse; font-size: .92rem; }
+    th, td { text-align: left; padding: .48rem .4rem; border-bottom: 1px solid var(--line); vertical-align: top; }
+    th { font-size: .78rem; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); font-weight: 560; }
+    .dot { display: inline-block; width: .55rem; height: .55rem; border-radius: 50%; background: var(--ok); }
+    .dot.off { background: #e4d3d0; box-shadow: inset 0 0 0 1.5px var(--bad); }
+    .status { font-size: .82rem; padding: .1rem .4rem; }
+    .status.ok { background: #e5f2ea; color: var(--ok); }
+    .status.bad { background: #f8e8e6; color: var(--bad); }
+    .status.warn { background: #f8efd8; color: var(--warn); }
+    .table-wrap { overflow-x: auto; }
+    .result-line { margin: .8rem 0 0; }
+    .money { font-family: var(--serif); font-size: 2.4rem; margin: .2rem 0 .4rem; }
+    .stack-list { display: flex; flex-wrap: wrap; gap: .45rem; }
+    .stack-list span { background: var(--paper); border: 1px solid var(--line); padding: .45rem .7rem; }
+    .preview { margin: 0 1.15rem 1.2rem; border: 1px solid #d7dee3; background: white; min-width: 0; }
+    .preview .cap {
+      display: flex;
+      justify-content: space-between;
+      gap: .6rem;
+      background: #1b3a4b;
+      color: #f4f7f8;
+      font-size: .72rem;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      padding: .4rem .65rem;
+    }
+    .stage { container-type: inline-size; overflow: hidden; background: #eef2f6; }
+    .page {
+      width: 980px;
+      zoom: calc(100cqi / 980px);
+      pointer-events: none;
+      font-family: "Segoe UI", Calibri, sans-serif;
+      font-size: 14px;
+      line-height: 1.45;
+      color: #172230;
+    }
+    .page h3, .page h4, .page p { margin: 0; }
+    .pg-audit { background: radial-gradient(circle at top right, #1e3a8a 0%, #0b1220 42%, #030712 100%); padding: 16px; color: #e2e8f0; }
+    .pg-audit .ahead { background: linear-gradient(120deg, rgba(37,99,235,.24), rgba(14,165,233,.08)); border: 1px solid rgba(148,163,184,.35); border-radius: 16px; padding: 16px 18px; margin-bottom: 12px; }
+    .pg-audit h3 { font-size: 26px; font-weight: 650; }
+    .pg-audit .ahead p { margin-top: 6px; color: #cbd5e1; font-size: 13px; }
+    .acards, .ocards, .mcards, .ekpis { display: grid; gap: 10px; }
+    .acards { grid-template-columns: repeat(4, 1fr); margin-bottom: 12px; }
+    .acards article, .obox, .mbox { background: #fff; color: #0f172a; border: 1px solid #e2e8f0; border-radius: 12px; padding: 12px; }
+    .acards span, .ocards span, .mcards span, .ekpis span { display: block; font-size: 12px; color: #64748b; }
+    .acards b, .ocards b, .mcards b { display: block; font-size: 24px; line-height: 1.1; margin-top: 4px; }
+    .acards .alert { border-left: 4px solid #f59e0b; }
+    .agrid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .abar { display: grid; grid-template-columns: 64px 1fr 28px; gap: 8px; align-items: center; font-size: 12px; color: #334155; margin: 6px 0; }
+    .abar i, .wbar i, .ebar i { display: block; height: 12px; background: #e6ebf0; border-radius: 6px; }
+    .abar i span { display: block; height: 100%; background: #3b82f6; border-radius: 6px; }
+    .pt { width: 100%; border-collapse: collapse; font-size: 12px; background: #fff; color: #0f172a; }
+    .pt th, .pt td { border-bottom: 1px solid #edf2f7; padding: 7px 8px; text-align: left; }
+    .pt th { background: #f8fafc; color: #334155; font-weight: 650; }
+    .bd { display: inline-block; padding: 1px 8px; border-radius: 999px; font-size: 11px; font-weight: 650; }
+    .bd.ok { background: #dcfce7; color: #166534; }
+    .bd.warn { background: #fef3c7; color: #92400e; }
+    .bd.bad { background: #fee2e2; color: #991b1b; }
+    .pg-track, .pg-cover { background: #f4f6f8; padding: 22px 24px 28px; }
+    .pg-track h3, .pg-cover h3, .pg-week h3 { font-size: 26px; letter-spacing: -.02em; }
+    .pg-track .lead, .pg-cover .lead, .pg-week .lead { color: #5c6778; margin: 6px 0 14px; }
+    .tk { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 12px; }
+    .tk div { background: #fff; border: 1px solid #d7dee8; padding: 12px; }
+    .tk b { display: block; font-size: 26px; }
+    .tk .bad b { color: #8a4b12; }
+    .tk .ok b { color: #1f7a4d; }
+    .pg-obs { background: #f3f6fa; }
+    .otopo { background: linear-gradient(135deg, #123b66, #1f5f99); color: #fff; padding: 22px 28px; }
+    .otopo h3 { font-size: 26px; }
+    .otopo p { margin-top: 6px; opacity: .86; }
+    .owrap { padding: 16px 18px 20px; }
+    .ofilters { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; background: #fff; border: 1px solid #dfe7ef; border-radius: 14px; padding: 14px; margin-bottom: 12px; }
+    .ofilters label { font-size: 11px; font-weight: 700; color: #667587; letter-spacing: .04em; text-transform: uppercase; }
+    .ofilters div { height: 36px; border: 1px solid #c9d5e2; border-radius: 8px; background: #fff; margin-top: 6px; padding: 8px 10px; color: #172230; }
+    .ocards { grid-template-columns: repeat(4, 1fr); background: #fff; border: 1px solid #dfe7ef; border-radius: 14px; overflow: hidden; margin-bottom: 12px; }
+    .ocards article { padding: 14px 16px; border-right: 1px solid #dfe7ef; }
+    .ocards article:last-child { border-right: 0; }
+    .pg-mem { background: radial-gradient(900px 280px at 8% -20%, #d9ecec, transparent 55%), #f3f6f8; padding: 16px; }
+    .mhero { background: linear-gradient(135deg, #0b3d45, #0f1c24 55%, #1a3340); color: #f5f8fa; border-radius: 18px; padding: 22px 24px; margin-bottom: 12px; }
+    .mhero h3 { font-family: Georgia, serif; font-size: 32px; font-weight: 400; }
+    .mhero p { color: #c5d2d9; margin-top: 8px; max-width: 62ch; }
+    .mchips { display: flex; gap: 8px; margin-top: 14px; }
+    .mchips span { border: 1px solid rgba(255,255,255,.18); border-radius: 999px; padding: 5px 10px; font-size: 12px; color: #dce7ec; }
+    .mcards { grid-template-columns: repeat(4, 1fr); margin-bottom: 12px; }
+    .mcards article { background: #fff; border: 1px solid #d5dde3; border-radius: 16px; padding: 14px; }
+    .mcards b { font-family: Georgia, serif; font-weight: 400; font-size: 34px; }
+    .mcards .t b { color: #0b6e6e; }
+    .mcards .g b { color: #1b7a4e; }
+    .mcards .o b { color: #c45c26; }
+    .mdec { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+    .mdec article { border-radius: 16px; padding: 14px; }
+    .mdec .a { background: #e6f3f3; }
+    .mdec .b { background: #f8ebe3; }
+    .mdec .c { background: #e8eef5; }
+    .mdec strong { display: block; margin-bottom: 4px; }
+    .mdec b { font-family: Georgia, serif; font-size: 28px; font-weight: 400; }
+    .pg-ext { background: linear-gradient(180deg, #cfd6de, #e7edf2); padding: 28px; }
+    .popup { width: 420px; background: linear-gradient(180deg, #dff5ef, #f3faf7 40%, #eef6f3); border-radius: 12px; padding: 18px; box-shadow: 0 8px 24px rgba(15,23,42,.12); color: #1f2937; }
+    .popup h3 { font-size: 20px; }
+    .popup .sub { color: #6b7280; font-size: 13px; margin-top: 2px; }
+    .popup label { display: block; font-size: 13px; font-weight: 650; margin: 12px 0 6px; color: #334155; }
+    .popup .field { height: 36px; border: 1px solid #cfe3da; border-radius: 8px; background: #fff; padding: 8px 10px; }
+    .popup .acts { display: flex; gap: 8px; margin-top: 12px; }
+    .popup button { border: 0; background: #0f766e; color: #fff; border-radius: 8px; padding: 8px 10px; font: inherit; font-size: 13px; }
+    .popup .ghost { background: #fff; color: #0f766e; border: 1px solid #cfe3da; }
+    .popup textarea { width: 100%; height: 92px; margin-top: 8px; border: 1px solid #cfe3da; border-radius: 8px; padding: 8px; font: inherit; font-size: 13px; resize: none; }
+    .pg-week { background: #f4f6f8; padding: 28px 24px 20px; }
+    .veredito { margin: 8px 0 14px; padding: 12px 14px; background: #fbf3e8; border-left: 4px solid #c47b2b; }
+    .metas2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px; }
+    .metas2 article { background: #fff; border: 1px solid #d7dee8; padding: 14px; }
+    .metas2 h4 { color: #1b3a4b; font-size: 16px; margin-bottom: 8px; }
+    .nums { display: flex; gap: 16px; margin-top: 10px; }
+    .nums b { display: block; font-size: 24px; }
+    .nums span { color: #5c6778; font-size: 12px; }
+    .nums .ok b { color: #1f7a4d; }
+    .nums .bad b { color: #8a4b12; }
+    .wbar, .ebar { display: grid; grid-template-columns: 72px 1fr 64px; gap: 8px; align-items: center; margin: 5px 0; font-size: 13px; }
+    .wbar i span, .ebar i span { display: block; height: 100%; background: #1b3a4b; }
+    .wbar i span.bad, .ebar i span.bad { background: #c47b2b; }
+    .pt.navy th { background: #1b3a4b; color: #fff; }
+    .pt tr.bad td:last-child { color: #8a4b12; font-weight: 650; }
+    .pg-exec { background: #f3f5f7; }
+    .topline { height: 4px; background: #0ea0c4; }
+    .goldline { height: 3px; background: #f0b429; }
+    .ehead { padding: 18px 22px 8px; }
+    .ehead h3 { font-size: 28px; color: #0b2545; }
+    .ehead p { color: #6b7280; margin-top: 4px; }
+    .ekpis { grid-template-columns: 1.3fr repeat(3, 1fr); padding: 8px 22px 16px; }
+    .ekpis article { background: #fff; border: 1px solid #e7eaee; border-radius: 14px; padding: 14px; }
+    .ekpis .ehero { background: linear-gradient(120deg, rgba(14,160,196,.07), rgba(159,220,53,.09)); border-color: rgba(14,160,196,.22); }
+    .ekpis b { display: block; font-size: 28px; color: #0b2545; margin-top: 4px; }
+    .ekpis .bad b { color: #da4a4a; }
+    .ekpis .ok b { color: #1e9e6c; }
+    .ebox { margin: 0 22px 18px; background: #fff; border: 1px solid #e7eaee; border-radius: 14px; padding: 14px; }
+    .dash {
+      background: #f4f7f8;
+      border: 1px solid #d7dee3;
+      padding: .65rem;
+      color: #1c2830;
+      font-size: .78rem;
+    }
+    .dash h3 { margin: 0 0 .45rem; font-size: .82rem; font-weight: 640; letter-spacing: -.01em; }
+    .dk { display: grid; grid-template-columns: repeat(3, 1fr); gap: .35rem; margin-bottom: .5rem; }
+    .dk div { background: white; border: 1px solid #d7dee3; padding: .4rem .45rem; }
+    .dk b { display: block; font-family: var(--serif); font-size: 1.25rem; font-weight: 400; line-height: 1; margin-top: .1rem; }
+    .dk .bad b { color: var(--bad); }
+    .dk .ok b { color: var(--ok); }
+    .dbar { display: grid; gap: .28rem; }
+    .dbar p { display: grid; grid-template-columns: 3.4rem 1fr 2.2rem; gap: .35rem; align-items: center; margin: 0; }
+    .dbar i { display: block; height: .38rem; background: #e3eaee; }
+    .dbar i span { display: block; height: 100%; background: #1b3a4b; }
+    .dbar i span.warn { background: var(--copper); }
+    .dbar i span.ok { background: var(--ok); }
+    .pair { display: grid; grid-template-columns: 1fr 1fr; gap: .4rem; }
+    .pair article { background: white; border: 1px solid #d7dee3; padding: .45rem .5rem; }
+    .pair h4 { margin: 0; font-size: .72rem; color: #1b3a4b; }
+    .pair b { display: block; font-size: 1.15rem; margin: .15rem 0; }
+    .pair p { margin: 0; color: #5c6778; font-size: .72rem; }
+    .mini-table { width: 100%; border-collapse: collapse; font-size: .72rem; background: white; }
+    .mini-table th, .mini-table td { padding: .28rem .3rem; border-bottom: 1px solid #e3eaee; }
+    .mini-table th { font-size: .64rem; }
+    .fit { display: grid; grid-template-columns: repeat(3, 1fr); gap: .8rem; }
+    .fit article { background: var(--paper); border: 1px solid var(--line); padding: 1rem 1.05rem; }
+    .fit h3 { margin: 0 0 .4rem; font-size: 1.15rem; }
+    .contact-box { display: flex; flex-wrap: wrap; gap: .8rem 1.4rem; align-items: center; justify-content: space-between; }
+    .contact-box h2 { margin-bottom: .35rem; }
+    .links { display: flex; flex-wrap: wrap; gap: .5rem; }
+    footer {
+      padding: 1.4rem 6vw 2rem;
+      color: var(--muted);
+      font-size: .92rem;
+    }
+    footer .inner { max-width: 1120px; margin: 0 auto; border-top: 1px solid var(--line); padding-top: 1rem; }
+
+    @media (max-width: 900px) {
+      .hero-grid, .facts, .steps, .cards, .case, .controls, .split, .kpis, .fit, .pair { grid-template-columns: 1fr; }
+      .card[open] { grid-column: auto; }
+      .nav { align-items: flex-start; flex-direction: column; }
+      main { padding-bottom: 2.5rem; }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip" href="#conteudo">Ir para o conteúdo</a>
+  <header class="nav">
+    <a class="brand" href="#topo">
+      <span class="mark">RL</span>
+      <span>Rubem Lima Viegas<small>Automação e dados</small></span>
+    </a>
+    <nav class="nav-links" aria-label="Seções">
+      <a href="#sobre">Sobre</a>
+      <a href="#projetos">Trabalho</a>
+      <a href="#laboratorio">Laboratório</a>
+      <a href="#contato">Contato</a>
+    </nav>
+  </header>
+
+  <div class="hero" id="topo">
+    <div class="hero-grid">
+      <div>
+        <p class="kicker">Python · automação · dados · IA</p>
+        <h1>Rubem Lima Viegas</h1>
+        <p>Análise e Desenvolvimento de Sistemas. Pós-graduação em Ciência de Dados. Esta página mostra alguns dos projetos que já fiz, com dados fictícios no lugar dos reais.</p>
+        <div class="hero-actions">
+          <a class="btn" href="#projetos">Ver o trabalho</a>
+          <a class="btn ghost" href="#laboratorio">Abrir o laboratório</a>
+        </div>
+      </div>
+      <aside class="pipe" aria-label="O que dá para ver nos projetos">
+        <h2>O que o trabalho mostra</h2>
+        <ol>
+          <li><span>01</span> Cinco fontes de inventário na mesma chave</li>
+          <li><span>02</span> Exceção separada de falso positivo</li>
+          <li><span>03</span> Ano de troca e compra calculados pelo modelo</li>
+          <li><span>04</span> Cobertura do agente cruzada com o inventário</li>
+          <li><span>05</span> Relatório automatizado, com os dados já preenchidos</li>
+        </ol>
+      </aside>
+    </div>
+  </div>
+
+  <main id="conteudo">
+    <section id="sobre" aria-labelledby="titulo-sobre">
+      <div class="facts">
+        <article class="panel">
+          <p class="eyebrow">Sobre</p>
+          <h2 class="section-title" id="titulo-sobre">Como eu trabalho.</h2>
+          <p>Busco melhoria no ambiente em que o trabalho já acontece. O que se repetia na mão eu passei para o código. No projeto da extensão, mais abaixo, a nota do chamado era despadronizada, cada um com a sua. Com ela, o texto e a resposta do atendimento passaram a seguir o mesmo modelo. Nos relatórios, automatizei o preenchimento: o script busca os dados nas bases que defini no código. Com isso, o preenchimento e o relatório já saem automáticos, no mesmo padrão, com confiabilidade nos dados e sem preenchimento manual. Também trabalho com IA, buscando uma entrega de alto nível sem comprometer a integridade e a segurança dos dados.</p>
+        </article>
+        <aside class="panel">
+          <p class="eyebrow">Formação</p>
+          <ul>
+            <li>Análise e Desenvolvimento de Sistemas</li>
+            <li>Pós-graduação em Ciência de Dados</li>
+          </ul>
+        </aside>
+      </div>
+    </section>
+
+    <section id="projetos" aria-labelledby="titulo-projetos">
+      <h2 class="section-title" id="titulo-projetos">Trabalho que já fiz</h2>
+      <p class="section-intro">Alguns projetos. Cada cartão resume o que mudou. Abrir mostra como eu resolvi.</p>
+      <div class="filters" role="group" aria-label="Filtrar projetos">
+        <button class="chip" type="button" aria-pressed="true" data-filter="todos">Todos</button>
+        <button class="chip" type="button" aria-pressed="false" data-filter="inventario">Inventário</button>
+        <button class="chip" type="button" aria-pressed="false" data-filter="hardware">Hardware</button>
+        <button class="chip" type="button" aria-pressed="false" data-filter="automacao">Automação</button>
+        <button class="chip" type="button" aria-pressed="false" data-filter="paineis">Painéis</button>
+      </div>
+      <div class="cards" id="lista-projetos">
+        <details class="card" data-area="inventario">
+          <summary>
+            <div class="card-top">
+              <div>
+                <span class="tag">Inventário</span>
+                <h3>Auditoria de inventário</h3>
+                <p>Cinco inventários viram uma base, com o que falta em cada fonte.</p>
+                <div class="tech">
+                  <span>Python</span><span>pandas</span><span>openpyxl</span><span>HTML</span><span>Power Automate</span>
+                </div>
+              </div>
+              <span class="plus" aria-hidden="true">+</span>
+            </div>
+          </summary>
+          <div class="case">
+            <div>
+              <h4>Problema</h4>
+              <p>O mesmo equipamento chega com grafia diferente em Intune, SCCM, Neurons, Entra ID e CMDB. Sem uma chave comum, cobertura e ausência não fecham.</p>
+            </div>
+            <div>
+              <h4>O que eu fiz</h4>
+              <ul>
+                <li>Presença do hostname em cada fonte e agrupamento dos registros.</li>
+                <li>Lista do que falta em pelo menos uma fonte.</li>
+                <li>Equipamentos sem comunicação acima de um limite de dias, com comparativo entre períodos.</li>
+                <li>Automatizei o relatório: os números saem preenchidos a partir da mesma base.</li>
+              </ul>
+            </div>
+          </div>
+          <div class="preview">
+            <div class="cap"><span>Exemplo do painel</span><span>Dados fictícios</span></div>
+            <div class="stage">
+              <div class="page pg-audit">
+                <div class="ahead">
+                  <h3>Auditoria de inventário</h3>
+                  <p>Painel gerado a partir de Intune, SCCM, Neurons, Entra ID e CMDB.</p>
+                </div>
+                <div class="acards">
+                  <article><span>Total de hosts</span><b>2.480</b></article>
+                  <article><span>Na base</span><b>2.318</b></article>
+                  <article class="alert"><span>Fora da base</span><b>162</b></article>
+                  <article><span>Série divergente</span><b>3</b></article>
+                </div>
+                <div class="agrid">
+                  <div class="obox">
+                    <h4>Fora da base por grupo</h4>
+                    <div class="abar"><span>Norte</span><i><span style="width:100%"></span></i>48</div>
+                    <div class="abar"><span>Serra</span><i><span style="width:65%"></span></i>31</div>
+                    <div class="abar"><span>Litoral</span><i><span style="width:46%"></span></i>22</div>
+                    <div class="abar"><span>Vale</span><i><span style="width:38%"></span></i>18</div>
+                    <div class="abar"><span>Centro</span><i><span style="width:25%"></span></i>12</div>
+                  </div>
+                  <div class="obox">
+                    <h4>Presença nas fontes</h4>
+                    <table class="pt">
+                      <thead><tr><th>Hostname</th><th>Intune</th><th>SCCM</th><th>CMDB</th></tr></thead>
+                      <tbody>
+                        <tr><td>NORTE-NB1042</td><td><span class="bd ok">Sim</span></td><td><span class="bd ok">Sim</span></td><td><span class="bd ok">Sim</span></td></tr>
+                        <tr><td>SERRA-NB0904</td><td><span class="bd ok">Sim</span></td><td><span class="bd bad">Não</span></td><td><span class="bd bad">Não</span></td></tr>
+                        <tr><td>VALE-DT0311</td><td><span class="bd bad">Não</span></td><td><span class="bd ok">Sim</span></td><td><span class="bd warn">Revisar</span></td></tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </details>
+
+        <details class="card" data-area="inventario">
+          <summary>
+            <div class="card-top">
+              <div>
+                <span class="tag">Inventário</span>
+                <h3>Rastreio de entrada e saída</h3>
+                <p>A série acompanha o equipamento e aponta quando ele some.</p>
+                <div class="tech">
+                  <span>Python</span><span>pandas</span>
+                </div>
+              </div>
+              <span class="plus" aria-hidden="true">+</span>
+            </div>
+          </summary>
+          <div class="case">
+            <div>
+              <h4>Problema</h4>
+              <p>Um equipamento deixa de constar nas extrações. A ausência pode ser retirada, estoque, mudança de rede ou perda de registro.</p>
+            </div>
+            <div>
+              <h4>O que eu fiz</h4>
+              <ul>
+                <li>Histórico agrupado pela série, com a primeira e a última ocorrência.</li>
+                <li>Alerta quando o registro fica ausente além de uma janela de tempo.</li>
+                <li>Cruzamento com status e com listas de retirada, para reduzir falso positivo.</li>
+                <li>Origem preenchida quando a série nova veio de uma substituição já registrada.</li>
+              </ul>
+            </div>
+          </div>
+          <div class="preview">
+            <div class="cap"><span>Exemplo do painel</span><span>Dados fictícios</span></div>
+            <div class="stage">
+              <div class="page pg-track">
+                <h3>Rastreio de entrada e saída</h3>
+                <p class="lead">Histórico pela série. Ausência além da janela vira alerta. Retirada registrada não entra como perda.</p>
+                <div class="tk">
+                  <div><span>Séries</span><b>1.126</b></div>
+                  <div class="bad"><span>Ausentes</span><b>37</b></div>
+                  <div class="ok"><span>Falso positivo</span><b>11</b></div>
+                </div>
+                <table class="pt navy">
+                  <thead><tr><th>Série</th><th>Primeira</th><th>Última</th><th>Dias</th><th>Situação</th></tr></thead>
+                  <tbody>
+                    <tr><td>SN-1042</td><td>02/01</td><td>18/03</td><td>4</td><td><span class="bd ok">Ativo</span></td></tr>
+                    <tr><td>SN-2210</td><td>11/11</td><td>04/02</td><td>44</td><td><span class="bd bad">Ausente</span></td></tr>
+                    <tr><td>SN-0881</td><td>03/06</td><td>09/01</td><td>70</td><td><span class="bd warn">Retirada</span></td></tr>
+                    <tr><td>SN-3308</td><td>19/02</td><td>19/02</td><td>0</td><td><span class="bd ok">Substituição</span></td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </details>
+
+        <details class="card" data-area="hardware">
+          <summary>
+            <div class="card-top">
+              <div>
+                <span class="tag">Hardware</span>
+                <h3>Obsolescência e Windows 11</h3>
+                <p>Idade, modelo e suporte ao Windows 11 definem o ano da troca.</p>
+                <div class="tech">
+                  <span>Python</span><span>openpyxl</span><span>HTML</span>
+                </div>
+              </div>
+              <span class="plus" aria-hidden="true">+</span>
+            </div>
+          </summary>
+          <div class="case">
+            <div>
+              <h4>Problema</h4>
+              <p>Idade, modelo, suporte ao Windows 11 e equipamentos já substituídos precisavam entrar no mesmo critério de prioridade.</p>
+            </div>
+            <div>
+              <h4>O que eu fiz</h4>
+              <ul>
+                <li>Classificação de suporte e de tipo, inclusive thin client.</li>
+                <li>Ano de troca por tipo e idade quando a série não está na base de referência.</li>
+                <li>Prioridade dos anos seguintes, sem contar o que já foi substituído.</li>
+                <li>Painel HTML com o recorte por grupo.</li>
+              </ul>
+            </div>
+          </div>
+          <div class="preview">
+            <div class="cap"><span>Exemplo do painel</span><span>Dados fictícios</span></div>
+            <div class="stage">
+              <div class="page pg-obs">
+                <header class="otopo">
+                  <h3>Obsolescência e Windows 11</h3>
+                  <p>Visão anual do parque, com recorte por grupo e ano da troca.</p>
+                </header>
+                <div class="owrap">
+                  <div class="ofilters">
+                    <label>Grupo<div>Todos</div></label>
+                    <label>Ano da troca<div>2027</div></label>
+                    <label>Tipo<div>Notebook</div></label>
+                    <label>Windows 11<div>Sem suporte</div></label>
+                  </div>
+                  <div class="ocards">
+                    <article><span>Parque</span><b>2.480</b></article>
+                    <article><span>Troca em 2027</span><b>186</b></article>
+                    <article><span>Sem Windows 11</span><b>94</b></article>
+                    <article><span>Thin client</span><b>27</b></article>
+                  </div>
+                  <table class="pt">
+                    <thead><tr><th>Grupo</th><th>Tipo</th><th>Idade</th><th>Windows 11</th><th>Ano</th></tr></thead>
+                    <tbody>
+                      <tr><td>Norte</td><td>Notebook</td><td>8</td><td><span class="bd bad">Não</span></td><td>2027</td></tr>
+                      <tr><td>Serra</td><td>Desktop</td><td>6</td><td><span class="bd ok">Sim</span></td><td>2028</td></tr>
+                      <tr><td>Litoral</td><td>Thin client</td><td>5</td><td><span class="bd warn">À parte</span></td><td>2029</td></tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </details>
+
+        <details class="card" data-area="hardware">
+          <summary>
+            <div class="card-top">
+              <div>
+                <span class="tag">Hardware</span>
+                <h3>Memória, disco e orçamento</h3>
+                <p>O modelo decide o pente, o upgrade e a lista de compra.</p>
+                <div class="tech">
+                  <span>Python</span><span>openpyxl</span><span>HTML</span>
+                </div>
+              </div>
+              <span class="plus" aria-hidden="true">+</span>
+            </div>
+          </summary>
+          <div class="case">
+            <div>
+              <h4>Problema</h4>
+              <p>Contar máquinas com pouca memória não define a compra. O módulo depende do modelo: DDR4 ou DDR5, SODIMM ou UDIMM, e se o equipamento aceita upgrade.</p>
+            </div>
+            <div>
+              <h4>O que eu fiz</h4>
+              <ul>
+                <li>Catálogo por modelo, com tipo, formato, velocidade e capacidade de upgrade.</li>
+                <li>Separação entre candidato a upgrade e equipamento recente com configuração de entrada.</li>
+                <li>Quantidade, SKU e valor para a lista de compra.</li>
+                <li>Capacidade de disco, uso e identificação de SSD ou HD.</li>
+                <li>Relatório de compra automatizado, com quantidade, SKU e valor.</li>
+              </ul>
+            </div>
+          </div>
+          <div class="preview">
+            <div class="cap"><span>Exemplo do painel</span><span>Dados fictícios</span></div>
+            <div class="stage">
+              <div class="page pg-mem">
+                <header class="mhero">
+                  <h3>Memória, disco e compra</h3>
+                  <p>Quem faz upgrade, quem fica de fora pela troca próxima e quem entrou recente abaixo de 16 GB.</p>
+                  <div class="mchips"><span>Corte: &lt; 16 GB</span><span>SODIMM e UDIMM</span><span>SSD ou HD</span></div>
+                </header>
+                <div class="mcards">
+                  <article class="t"><span>Upgrade</span><b>186</b></article>
+                  <article class="g"><span>Módulo 8 GB</span><b>142</b></article>
+                  <article class="o"><span>Troca próxima</span><b>64</b></article>
+                  <article><span>Entrada recente</span><b>21</b></article>
+                </div>
+                <div class="mdec">
+                  <article class="a"><strong>1. Upgrade</strong><b>142</b><p>Notebook em SODIMM e desktop em UDIMM.</p></article>
+                  <article class="b"><strong>2. Não comprar agora</strong><b>64</b><p>Troca já prevista para o ano seguinte.</p></article>
+                  <article class="c"><strong>3. Entrada recente</strong><b>21</b><p>Máquina nova que já chegou abaixo do corte.</p></article>
+                </div>
+              </div>
+            </div>
+          </div>
+        </details>
+
+        <details class="card" data-area="automacao">
+          <summary>
+            <div class="card-top">
+              <div>
+                <span class="tag">Automação</span>
+                <h3>Atendimento e OneDrive</h3>
+                <p>A nota do chamado sai no mesmo padrão, e o link de OneDrive sai junto.</p>
+                <div class="tech">
+                  <span>Chrome MV3</span><span>JavaScript</span><span>Selenium</span><span>PowerShell</span>
+                </div>
+              </div>
+              <span class="plus" aria-hidden="true">+</span>
+            </div>
+          </summary>
+          <div class="case">
+            <div>
+              <h4>Problema</h4>
+              <p>Cada atualização de chamado ia com uma nota fora do padrão. O texto e a resposta do atendimento mudavam a cada preenchimento. Os links de OneDrive eram montados manualmente a partir do e-mail.</p>
+            </div>
+            <div>
+              <h4>O que eu fiz</h4>
+              <ul>
+                <li>Extensão de navegador que padroniza o texto da nota e a resposta do atendimento.</li>
+                <li>Modelos, campos e memória do último preenchimento.</li>
+                <li>Leitura da página, inclusive conteúdo em quadro, para extrair número e e-mail.</li>
+                <li>Geração dos endereços de OneDrive, armazenamento e retenção, com planilha para o lote.</li>
+              </ul>
+            </div>
+          </div>
+          <div class="preview">
+            <div class="cap"><span>Exemplo do painel</span><span>Dados fictícios</span></div>
+            <div class="stage">
+              <div class="page pg-ext">
+                <div class="popup">
+                  <h3>Nota do chamado</h3>
+                  <p class="sub">O texto e a resposta saem no mesmo modelo.</p>
+                  <label>Tipo de atualização</label>
+                  <div class="field">Atualização</div>
+                  <label>Chamado</label>
+                  <div class="field">CH-10442</div>
+                  <label>Ativo</label>
+                  <div class="field">ATIVO-1042</div>
+                  <div class="acts"><button type="button">Puxar da página</button><button type="button">Gerar texto</button><button class="ghost" type="button">Limpar</button></div>
+                  <label>Texto gerado</label>
+                  <textarea readonly>Chamado CH-10442. Ativo ATIVO-1042. Equipamento conferido. A resposta do atendimento segue o mesmo texto. OneDrive, armazenamento e retenção gerados para ana.norte@exemplo.com.</textarea>
+                </div>
+              </div>
+            </div>
+          </div>
+        </details>
+
+        <details class="card" data-area="inventario">
+          <summary>
+            <div class="card-top">
+              <div>
+                <span class="tag">Inventário</span>
+                <h3>Cobertura do agente de segurança</h3>
+                <p>O inventário mostra onde o agente está instalado e onde falta.</p>
+                <div class="tech">
+                  <span>Python</span><span>openpyxl</span>
+                </div>
+              </div>
+              <span class="plus" aria-hidden="true">+</span>
+            </div>
+          </summary>
+          <div class="case">
+            <div>
+              <h4>Problema</h4>
+              <p>A lista de dispositivos com o agente não fechava sozinha com o inventário de estações.</p>
+            </div>
+            <div>
+              <h4>O que eu fiz</h4>
+              <ul>
+                <li>Cruzamento do hostname do inventário com a lista de dispositivos do Netskope.</li>
+                <li>Quantidade e percentual de cobertura.</li>
+                <li>Resumo automatizado, com quantidade e percentual de cobertura.</li>
+              </ul>
+            </div>
+          </div>
+          <div class="preview">
+            <div class="cap"><span>Exemplo do painel</span><span>Dados fictícios</span></div>
+            <div class="stage">
+              <div class="page pg-cover">
+                <h3>Cobertura do agente</h3>
+                <p class="lead">Hostname do inventário cruzado com a lista de dispositivos. O resumo sai com quantidade e percentual.</p>
+                <div class="tk">
+                  <div><span>Estações</span><b>2.480</b></div>
+                  <div class="ok"><span>Com agente</span><b>2.214</b></div>
+                  <div class="bad"><span>Cobertura</span><b>89,3%</b></div>
+                </div>
+                <table class="pt navy">
+                  <thead><tr><th>Grupo</th><th>Estações</th><th>Com agente</th><th>Sem agente</th><th>Cobertura</th></tr></thead>
+                  <tbody>
+                    <tr><td>Norte</td><td>640</td><td>590</td><td>50</td><td>92,2%</td></tr>
+                    <tr><td>Serra</td><td>510</td><td>430</td><td>80</td><td>84,3%</td></tr>
+                    <tr><td>Litoral</td><td>470</td><td>428</td><td>42</td><td>91,1%</td></tr>
+                    <tr><td>Vale</td><td>460</td><td>401</td><td>59</td><td>87,2%</td></tr>
+                    <tr><td>Centro</td><td>400</td><td>365</td><td>35</td><td>91,3%</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </details>
+
+        <details class="card" data-area="paineis">
+          <summary>
+            <div class="card-top">
+              <div>
+                <span class="tag">Painéis</span>
+                <h3>Semana nova no relatório já desenhado</h3>
+                <p>O desenho fica. O script troca os números e as frases da semana.</p>
+                <div class="tech">
+                  <span>Python</span><span>openpyxl</span><span>HTML</span>
+                </div>
+              </div>
+              <span class="plus" aria-hidden="true">+</span>
+            </div>
+          </summary>
+          <div class="case">
+            <div>
+              <h4>Problema</h4>
+              <p>Toda semana a base mudava e o relatório, os slides e o e-mail eram refeitos na mão. O risco era um número sair diferente do outro.</p>
+            </div>
+            <div>
+              <h4>O que eu fiz</h4>
+              <ul>
+                <li>Leitura da planilha pela estrutura: data no cabeçalho, nome da coluna e linha de total, sem depender de uma célula fixa.</li>
+                <li>A semana nova é criada ao lado da anterior, com as mesmas contas: taxa igual a problema dividido pelo total, e a diferença contra a semana anterior.</li>
+                <li>Linha sem nome de grupo fica de fora da conta.</li>
+                <li>Os mesmos números reescrevem os slides, o comparativo, o relatório e o texto do e-mail. O desenho e a regra de bom ou ruim permanecem.</li>
+                <li>A fila de quem não foi visto no prazo sai do extrato. O grupo vem do trecho do hostname antes do hífen, cruzado com o cadastro.</li>
+              </ul>
+            </div>
+          </div>
+          <div class="preview">
+            <div class="cap"><span>Exemplo do painel</span><span>Dados fictícios</span></div>
+            <div class="stage">
+              <div class="page pg-week">
+                <h3>Semana de 14/03</h3>
+                <p class="lead">Comparada com 07/03. O desenho permanece. Mudam os números e as frases.</p>
+                <div class="veredito"><strong>A conformidade está dentro do limite. A comunicação ainda não.</strong> Dos 2.480 equipamentos, 93,4% foram vistos no prazo. A meta pede 95%. O desvio está em 1,8%.</div>
+                <div class="metas2">
+                  <article>
+                    <h4>Comunicação</h4>
+                    <p>Ver, no prazo, pelo menos 95% dos equipamentos.</p>
+                    <div class="nums">
+                      <div class="bad"><b>93,4%</b><span>Vistos no prazo</span></div>
+                      <div><b>164</b><span>Sem comunicação</span></div>
+                      <div class="ok"><b>−22</b><span>A menos que em 07/03</span></div>
+                    </div>
+                  </article>
+                  <article>
+                    <h4>Conformidade</h4>
+                    <p>Manter o desvio em até 5% do total.</p>
+                    <div class="nums">
+                      <div class="ok"><b>1,8%</b><span>Desvio sobre o total</span></div>
+                      <div><b>45</b><span>Em desvio</span></div>
+                      <div class="bad"><b>+6</b><span>A mais que em 07/03</span></div>
+                    </div>
+                  </article>
+                </div>
+                <div class="wbar"><span>Norte</span><i><span style="width:100%"></span></i><span>48</span></div>
+                <div class="wbar"><span>Serra</span><i><span class="bad" style="width:73%"></span></i><span>35</span></div>
+                <div class="wbar"><span>Litoral</span><i><span style="width:58%"></span></i><span>28</span></div>
+                <table class="pt navy">
+                  <thead><tr><th>Grupo</th><th>Total</th><th>Não vistos</th><th>Comunicação</th><th>Meta</th></tr></thead>
+                  <tbody>
+                    <tr><td>Norte</td><td>640</td><td>48</td><td>92,5%</td><td>Abaixo</td></tr>
+                    <tr class="bad"><td>Serra</td><td>510</td><td>35</td><td>93,1%</td><td>Abaixo</td></tr>
+                    <tr><td>Litoral</td><td>470</td><td>28</td><td>94,0%</td><td>Abaixo</td></tr>
+                    <tr><td>Total</td><td>2.480</td><td>164</td><td>93,4%</td><td>Abaixo</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </details>
+
+        <details class="card" data-area="paineis">
+          <summary>
+            <div class="card-top">
+              <div>
+                <span class="tag">Painéis</span>
+                <h3>Painéis de execução</h3>
+                <p>Automatizei o acompanhamento: meta, previsto e realizado saem preenchidos.</p>
+                <div class="tech">
+                  <span>Python</span><span>openpyxl</span><span>HTML</span>
+                </div>
+              </div>
+              <span class="plus" aria-hidden="true">+</span>
+            </div>
+          </summary>
+          <div class="case">
+            <div>
+              <h4>Problema</h4>
+              <p>O acompanhamento de execução estava na exportação do formulário, com colunas que mudam de nome e às vezes vêm preenchidas em duplicidade.</p>
+            </div>
+            <div>
+              <h4>O que eu fiz</h4>
+              <ul>
+                <li>Indicadores de meta, esperado, realizado, restante e status.</li>
+                <li>Identificação da aba pela estrutura das colunas, sem depender de um nome fixo.</li>
+                <li>Tratamento de resposta duplicada na mesma linha.</li>
+                <li>Comparação de previsto e realizado ao longo dos meses, no relatório automatizado.</li>
+              </ul>
+            </div>
+          </div>
+          <div class="preview">
+            <div class="cap"><span>Exemplo do painel</span><span>Dados fictícios</span></div>
+            <div class="stage">
+              <div class="page pg-exec">
+                <div class="topline"></div>
+                <div class="goldline"></div>
+                <header class="ehead">
+                  <h3>Painel de execução</h3>
+                  <p>Meta, previsto e realizado preenchidos a partir da exportação.</p>
+                </header>
+                <div class="ekpis">
+                  <article class="ehero"><span>Realizado no mês</span><b>14</b></article>
+                  <article><span>Meta</span><b>30</b></article>
+                  <article><span>Previsto</span><b>18</b></article>
+                  <article class="bad"><span>Restante</span><b>16</b></article>
+                </div>
+                <div class="ebox">
+                  <h4>Percentual da meta</h4>
+                  <div class="ebar"><span>Norte</span><i><span style="width:80%"></span></i><span>80%</span></div>
+                  <div class="ebar"><span>Serra</span><i><span class="bad" style="width:40%"></span></i><span>40%</span></div>
+                  <div class="ebar"><span>Vale</span><i><span style="width:55%"></span></i><span>55%</span></div>
+                  <div class="ebar"><span>Centro</span><i><span style="width:62%"></span></i><span>62%</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </details>
+      </div>
+    </section>
+
+    <section id="laboratorio" aria-labelledby="titulo-lab">
+      <div class="lab">
+        <div class="lab-head">
+          <p class="eyebrow">Laboratório</p>
+          <h2 class="section-title" id="titulo-lab">O cálculo, na prática</h2>
+          <p class="section-intro">Dados fictícios. Dá para filtrar a cobertura, calcular o ano de troca, montar um pedido e gerar o texto. A amostra mostra as exceções de propósito.</p>
+        </div>
+        <div class="tabs" role="tablist" aria-label="Demonstrações">
+          <button type="button" role="tab" id="tab-compliance" aria-controls="painel-compliance" aria-selected="true" data-tab="compliance">Compliance</button>
+          <button type="button" role="tab" id="tab-troca" aria-controls="painel-troca" aria-selected="false" tabindex="-1" data-tab="troca">Ano de troca</button>
+          <button type="button" role="tab" id="tab-orcamento" aria-controls="painel-orcamento" aria-selected="false" tabindex="-1" data-tab="orcamento">Orçamento</button>
+          <button type="button" role="tab" id="tab-chamado" aria-controls="painel-chamado" aria-selected="false" tabindex="-1" data-tab="chamado">Texto de chamado</button>
+        </div>
+
+        <div class="sheet" id="painel-compliance" role="tabpanel" aria-labelledby="tab-compliance" data-panel="compliance">
+          <div class="controls">
+            <label>Grupo
+              <select id="filtro-un">
+                <option value="todas">Todas</option>
+                <option value="norte">Norte</option>
+                <option value="serra">Serra</option>
+                <option value="litoral">Litoral</option>
+                <option value="vale">Vale</option>
+                <option value="centro">Centro</option>
+              </select>
+            </label>
+            <label>Situação
+              <select id="filtro-status">
+                <option value="todas">Todas</option>
+                <option value="Conforme">Conforme</option>
+                <option value="Divergente">Divergente</option>
+                <option value="Sem comunicação">Sem comunicação</option>
+              </select>
+            </label>
+            <label>Busca
+              <input id="filtro-busca" type="search" placeholder="Hostname ou série" autocomplete="off">
+            </label>
+            <label>Limite sem comunicação
+              <input id="limite-dias" type="number" min="1" max="180" value="30">
+            </label>
+          </div>
+          <div class="kpis" id="kpis"></div>
+          <div class="split">
+            <div>
+              <p class="eyebrow">Conformidade por grupo</p>
+              <div class="bars" id="barras"></div>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <caption class="sr" style="position:absolute;left:-999px">Ativos ilustrativos e presença nas fontes</caption>
+                <thead>
+                  <tr>
+                    <th>Ativo</th>
+                    <th>Grupo</th>
+                    <th>Intune</th>
+                    <th>SCCM</th>
+                    <th>Neurons</th>
+                    <th>Entra</th>
+                    <th>CMDB</th>
+                    <th>Dias</th>
+                    <th>Situação</th>
+                  </tr>
+                </thead>
+                <tbody id="corpo-ativos"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <div class="sheet" id="painel-troca" role="tabpanel" aria-labelledby="tab-troca" data-panel="troca" hidden>
+          <div class="controls">
+            <label>Tipo
+              <select id="tipo-ativo">
+                <option value="notebook">Notebook</option>
+                <option value="desktop">Desktop</option>
+              </select>
+            </label>
+            <label>Idade em anos
+              <input id="idade" type="number" min="0" max="20" value="8">
+            </label>
+            <label>Ano de referência
+              <input id="ano-base" type="number" min="2024" max="2040" value="2026">
+            </label>
+            <label>Vida útil de exemplo
+              <input id="vida-util" type="text" value="Notebook 9 · desktop 10" readonly>
+            </label>
+          </div>
+          <p class="eyebrow">Resultado</p>
+          <p class="money" id="ano-troca">2027</p>
+          <p id="texto-troca"></p>
+          <p class="result-line">Fórmula de exemplo: ano de referência + (vida útil − idade). Se a idade já passou da vida útil, a troca fica no ano de referência.</p>
+        </div>
+
+        <div class="sheet" id="painel-orcamento" role="tabpanel" aria-labelledby="tab-orcamento" data-panel="orcamento" hidden>
+          <div class="controls">
+            <label>Notebooks para upgrade
+              <input id="qtd-note" type="number" min="0" value="40">
+            </label>
+            <label>Desktops para upgrade
+              <input id="qtd-desk" type="number" min="0" value="25">
+            </label>
+            <label>SODIMM 8 GB (exemplo)
+              <input id="preco-sodimm" type="number" min="0" step="1" value="210">
+            </label>
+            <label>UDIMM 8 GB (exemplo)
+              <input id="preco-udimm" type="number" min="0" step="1" value="240">
+            </label>
+          </div>
+          <p class="eyebrow">Pedido ilustrativo · um módulo por máquina</p>
+          <p class="money" id="total-orcamento"></p>
+          <div id="linhas-orcamento"></div>
+          <p class="result-line">Notebook usa SODIMM e desktop usa UDIMM. No projeto, o módulo também depende do modelo e de se o equipamento aceita upgrade.</p>
+        </div>
+
+        <div class="sheet" id="painel-chamado" role="tabpanel" aria-labelledby="tab-chamado" data-panel="chamado" hidden>
+          <div class="controls">
+            <label>Ação
+              <select id="acao">
+                <option value="aprovado">Aprovado</option>
+                <option value="reprovado">Reprovado</option>
+                <option value="atualizacao">Atualização</option>
+              </select>
+            </label>
+            <label>Chamado
+              <input id="numero-chamado" type="text" value="CH-10442">
+            </label>
+            <label>Ativo
+              <input id="nome-ativo" type="text" value="ATIVO-1042">
+            </label>
+          </div>
+          <label>Resumo
+            <input id="resumo" type="text" value="Solicitação conferida com o inventário.">
+          </label>
+          <p style="margin:.8rem 0 .4rem">
+            <button class="btn pine" type="button" id="copiar-texto">Copiar texto</button>
+          </p>
+          <textarea id="texto-chamado" readonly></textarea>
+          <p id="aviso-copia" class="result-line" role="status"></p>
+        </div>
+      </div>
+    </section>
+
+    <section aria-labelledby="titulo-stack">
+      <h2 class="section-title" id="titulo-stack">Tecnologias</h2>
+      <p class="section-intro">O que eu uso para construir, e de onde os dados entram.</p>
+      <p class="eyebrow">Construo com</p>
+      <div class="stack-list">
+        <span>Python</span>
+        <span>pandas</span>
+        <span>openpyxl</span>
+        <span>PowerShell</span>
+        <span>Selenium</span>
+        <span>JavaScript</span>
+        <span>Chrome Manifest V3</span>
+        <span>HTML</span>
+        <span>Power Automate</span>
+      </div>
+      <p class="eyebrow" style="margin-top:1.2rem">Leio dados de</p>
+      <div class="stack-list">
+        <span>Intune</span>
+        <span>SCCM</span>
+        <span>Neurons</span>
+        <span>Entra ID</span>
+        <span>CMDB</span>
+        <span>Netskope</span>
+        <span>Microsoft Forms</span>
+        <span>Excel</span>
+      </div>
+    </section>
+
+    <section id="contato" aria-labelledby="titulo-contato">
+      <div class="panel contact-box">
+        <div>
+          <p class="eyebrow">Contato</p>
+          <h2 class="section-title" id="titulo-contato">Contato</h2>
+          <p id="linha-contato">Automação e dados. Disponível para uma conversa.</p>
+        </div>
+        <div class="links" id="links-contato"></div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="inner">
+      Rubem Lima Viegas · automação e dados · demonstrações com dados fictícios.
+    </div>
+  </footer>
+
+  <script>
+    /* Preencha antes de publicar ou enviar. Deixe vazio o que ainda não quiser mostrar. */
+    const PERFIL = {
+      email: "",
+      linkedin: "",
+      cidade: "",
+      telefone: ""
+    };
+
+    const UNIDADES = [
+      { id: "norte", nome: "Norte" },
+      { id: "serra", nome: "Serra" },
+      { id: "litoral", nome: "Litoral" },
+      { id: "vale", nome: "Vale" },
+      { id: "centro", nome: "Centro" }
+    ];
+
+    const ATIVOS = [
+      { host: "NORTE-NB1042", serial: "SN7K2M9Q", un: "norte", intune: 1, sccm: 1, neurons: 1, entra: 1, cmdb: 1, dias: 2 },
+      { host: "NORTE-NB1108", serial: "SN2A9C1M", un: "norte", intune: 1, sccm: 1, neurons: 1, entra: 1, cmdb: 1, dias: 4 },
+      { host: "NORTE-DT0218", serial: "SN8H1L0C", un: "norte", intune: 1, sccm: 1, neurons: 0, entra: 1, cmdb: 1, dias: 5 },
+      { host: "NORTE-DT0302", serial: "SN6P4E8T", un: "norte", intune: 1, sccm: 1, neurons: 1, entra: 1, cmdb: 1, dias: 1 },
+      { host: "SERRA-NB0144", serial: "SN1K7Q3B", un: "serra", intune: 1, sccm: 1, neurons: 1, entra: 1, cmdb: 1, dias: 3 },
+      { host: "SERRA-DT0331", serial: "SN1P8C4L", un: "serra", intune: 1, sccm: 1, neurons: 0, entra: 1, cmdb: 0, dias: 6 },
+      { host: "SERRA-NB0904", serial: "SN6T3B7D", un: "serra", intune: 1, sccm: 0, neurons: 1, entra: 0, cmdb: 1, dias: 44 },
+      { host: "SERRA-DT0412", serial: "SN9M2H5C", un: "serra", intune: 1, sccm: 1, neurons: 1, entra: 1, cmdb: 1, dias: 7 },
+      { host: "LITORAL-NB0155", serial: "SN2M9A6E", un: "litoral", intune: 1, sccm: 1, neurons: 1, entra: 1, cmdb: 1, dias: 1 },
+      { host: "LITORAL-DT0044", serial: "SN5C0Q8R", un: "litoral", intune: 0, sccm: 1, neurons: 1, entra: 1, cmdb: 1, dias: 12 },
+      { host: "LITORAL-NB0188", serial: "SN7D1R4P", un: "litoral", intune: 1, sccm: 1, neurons: 1, entra: 1, cmdb: 1, dias: 2 },
+      { host: "VALE-NB0551", serial: "SN4W8L2J", un: "vale", intune: 1, sccm: 1, neurons: 1, entra: 1, cmdb: 1, dias: 5 },
+      { host: "VALE-NB0770", serial: "SN4R0D2A", un: "vale", intune: 1, sccm: 0, neurons: 1, entra: 1, cmdb: 1, dias: 47 },
+      { host: "VALE-DT0120", serial: "SN9L4E1K", un: "vale", intune: 1, sccm: 1, neurons: 1, entra: 1, cmdb: 0, dias: 9 },
+      { host: "VALE-DT0199", serial: "SN0C5N7A", un: "vale", intune: 1, sccm: 1, neurons: 1, entra: 1, cmdb: 1, dias: 8 },
+      { host: "CENTRO-NB2201", serial: "SN3B7P5N", un: "centro", intune: 1, sccm: 1, neurons: 1, entra: 1, cmdb: 1, dias: 3 },
+      { host: "CENTRO-NB2214", serial: "SN8E2K6Q", un: "centro", intune: 1, sccm: 1, neurons: 1, entra: 1, cmdb: 1, dias: 6 },
+      { host: "CENTRO-DT1188", serial: "SN0D6H2W", un: "centro", intune: 1, sccm: 1, neurons: 1, entra: 0, cmdb: 1, dias: 36 }
+    ];
+
+    const nomeUn = (id) => UNIDADES.find((u) => u.id === id).nome;
+    const pct = (n) => n.toLocaleString("pt-BR", { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + "%";
+    const brl = (n) => n.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+
+    function situacao(ativo, limite) {
+      const fontes = [ativo.intune, ativo.sccm, ativo.neurons, ativo.entra, ativo.cmdb];
+      if (ativo.dias > limite) return "Sem comunicação";
+      if (fontes.every(Boolean)) return "Conforme";
+      return "Divergente";
+    }
+
+    function filtrados() {
+      const un = document.getElementById("filtro-un").value;
+      const status = document.getElementById("filtro-status").value;
+      const busca = document.getElementById("filtro-busca").value.trim().toLowerCase();
+      const limite = Number(document.getElementById("limite-dias").value) || 30;
+      return ATIVOS.filter((ativo) => {
+        const sit = situacao(ativo, limite);
+        const texto = (ativo.host + " " + ativo.serial).toLowerCase();
+        if (un !== "todas" && ativo.un !== un) return false;
+        if (status !== "todas" && sit !== status) return false;
+        if (busca && !texto.includes(busca)) return false;
+        return true;
+      });
+    }
+
+    function renderCompliance() {
+      const limite = Number(document.getElementById("limite-dias").value) || 30;
+      const linhas = filtrados();
+      const ordem = { "Sem comunicação": 0, "Divergente": 1, "Conforme": 2 };
+      linhas.sort((a, b) => ordem[situacao(a, limite)] - ordem[situacao(b, limite)]);
+      const total = linhas.length;
+      const conformes = linhas.filter((a) => situacao(a, limite) === "Conforme").length;
+      const divergentes = linhas.filter((a) => situacao(a, limite) === "Divergente").length;
+      const silenciosos = linhas.filter((a) => situacao(a, limite) === "Sem comunicação").length;
+      const taxa = total ? (conformes / total) * 100 : 0;
+
+      document.getElementById("kpis").innerHTML = [
+        ["Registros", String(total)],
+        ["Exceções", String(divergentes + silenciosos)],
+        ["Conformidade", pct(taxa)],
+        ["Sem comunicação", String(silenciosos)]
+      ].map(([rotulo, valor]) => `<article class="kpi"><span>${rotulo}</span><b>${valor}</b></article>`).join("");
+
+      const unSelecionada = document.getElementById("filtro-un").value;
+      const unidades = UNIDADES.filter((u) => unSelecionada === "todas" || u.id === unSelecionada);
+      document.getElementById("barras").innerHTML = unidades.map((u) => {
+        const doUn = ATIVOS.filter((a) => a.un === u.id);
+        const ok = doUn.filter((a) => situacao(a, limite) === "Conforme").length;
+        const taxaUn = doUn.length ? (ok / doUn.length) * 100 : 0;
+        const classe = taxaUn < 70 ? "fill warn" : "fill";
+        return `<div class="bar-row"><span>${u.nome}</span><div class="track"><div class="${classe}" style="width:${taxaUn}%"></div></div><span>${pct(taxaUn)}</span></div>`;
+      }).join("");
+
+      const corpo = document.getElementById("corpo-ativos");
+      corpo.innerHTML = linhas.map((ativo) => {
+        const sit = situacao(ativo, limite);
+        const classe = sit === "Conforme" ? "ok" : sit === "Divergente" ? "bad" : "warn";
+        const marca = (valor) => `<span class="dot${valor ? "" : " off"}" aria-label="${valor ? "presente" : "ausente"}"></span>`;
+        return `<tr>
+          <td><strong>${ativo.host}</strong><br><span style="color:#5f574d">${ativo.serial}</span></td>
+          <td>${nomeUn(ativo.un)}</td>
+          <td>${marca(ativo.intune)}</td>
+          <td>${marca(ativo.sccm)}</td>
+          <td>${marca(ativo.neurons)}</td>
+          <td>${marca(ativo.entra)}</td>
+          <td>${marca(ativo.cmdb)}</td>
+          <td>${ativo.dias}</td>
+          <td><span class="status ${classe}">${sit}</span></td>
+        </tr>`;
+      }).join("") || `<tr><td colspan="9">Nenhum ativo neste recorte.</td></tr>`;
+    }
+
+    function renderTroca() {
+      const tipo = document.getElementById("tipo-ativo").value;
+      const idade = Number(document.getElementById("idade").value);
+      const ano = Number(document.getElementById("ano-base").value);
+      const vida = tipo === "notebook" ? 9 : 10;
+      document.getElementById("vida-util").value = tipo === "notebook" ? "Notebook · 9 anos" : "Desktop · 10 anos";
+      if (!Number.isFinite(idade) || !Number.isFinite(ano)) return;
+      let anoTroca = ano + (vida - idade);
+      if (anoTroca < ano) anoTroca = ano;
+      document.getElementById("ano-troca").textContent = String(anoTroca);
+      const nome = tipo === "notebook" ? "notebook" : "desktop";
+      const frase = idade >= vida
+        ? `Este ${nome} já alcançou a vida útil de exemplo. A troca entra em ${anoTroca}.`
+        : `Este ${nome} completa ${vida} anos em ${anoTroca}. Até lá, fica fora da prioridade imediata.`;
+      document.getElementById("texto-troca").textContent = frase;
+    }
+
+    function renderOrcamento() {
+      const notes = Math.max(0, Number(document.getElementById("qtd-note").value) || 0);
+      const desks = Math.max(0, Number(document.getElementById("qtd-desk").value) || 0);
+      const sodimm = Math.max(0, Number(document.getElementById("preco-sodimm").value) || 0);
+      const udimm = Math.max(0, Number(document.getElementById("preco-udimm").value) || 0);
+      const totalNotes = notes * sodimm;
+      const totalDesks = desks * udimm;
+      document.getElementById("total-orcamento").textContent = brl(totalNotes + totalDesks);
+      document.getElementById("linhas-orcamento").innerHTML = `
+        <p>${notes} notebooks × SODIMM = ${brl(totalNotes)}</p>
+        <p>${desks} desktops × UDIMM = ${brl(totalDesks)}</p>`;
+    }
+
+    function textoChamado() {
+      const acao = document.getElementById("acao").value;
+      const chamado = document.getElementById("numero-chamado").value.trim() || "sem número";
+      const ativo = document.getElementById("nome-ativo").value.trim() || "ativo não informado";
+      const resumo = document.getElementById("resumo").value.trim();
+      const titulo = {
+        aprovado: "Solicitação aprovada",
+        reprovado: "Solicitação não aprovada",
+        atualizacao: "Atualização do atendimento"
+      }[acao];
+      const fechamento = {
+        aprovado: "Pode seguir para a execução prevista no chamado.",
+        reprovado: "Para retomar, é preciso ajustar o pedido e reenviar com o complemento.",
+        atualizacao: "O chamado segue em acompanhamento com este status."
+      }[acao];
+      return `${titulo}\nChamado: ${chamado}\nAtivo: ${ativo}\n\n${resumo}\n\n${fechamento}`;
+    }
+
+    function renderChamado() {
+      document.getElementById("texto-chamado").value = textoChamado();
+    }
+
+    function aplicarContato() {
+      const destino = document.getElementById("links-contato");
+      const linha = document.getElementById("linha-contato");
+      const pedacos = ["Automação e dados. Disponível para uma conversa."];
+      if (PERFIL.cidade) pedacos.push(PERFIL.cidade);
+      linha.textContent = pedacos.join(" · ");
+
+      const links = [];
+      if (PERFIL.email) links.push(`<a class="btn" href="mailto:${PERFIL.email}">${PERFIL.email}</a>`);
+      if (PERFIL.linkedin) links.push(`<a class="btn pine" href="${PERFIL.linkedin}" target="_blank" rel="noreferrer">LinkedIn</a>`);
+      if (PERFIL.telefone) links.push(`<a class="btn line" href="tel:${PERFIL.telefone.replace(/\s/g, "")}">${PERFIL.telefone}</a>`);
+      destino.innerHTML = links.join("");
+    }
+
+    function selecionarAba(id) {
+      document.querySelectorAll("[data-tab]").forEach((botao) => {
+        const ativo = botao.dataset.tab === id;
+        botao.setAttribute("aria-selected", String(ativo));
+        botao.tabIndex = ativo ? 0 : -1;
+      });
+      document.querySelectorAll("[data-panel]").forEach((painel) => {
+        painel.hidden = painel.dataset.panel !== id;
+      });
+    }
+
+    document.querySelectorAll("[data-filter]").forEach((botao) => {
+      botao.addEventListener("click", () => {
+        document.querySelectorAll("[data-filter]").forEach((item) => item.setAttribute("aria-pressed", "false"));
+        botao.setAttribute("aria-pressed", "true");
+        const filtro = botao.dataset.filter;
+        document.querySelectorAll(".card").forEach((card) => {
+          card.hidden = filtro !== "todos" && card.dataset.area !== filtro;
+        });
+      });
+    });
+
+    document.querySelectorAll("[data-tab]").forEach((botao) => {
+      botao.addEventListener("click", () => selecionarAba(botao.dataset.tab));
+    });
+
+    ["filtro-un", "filtro-status", "filtro-busca", "limite-dias"].forEach((id) => {
+      document.getElementById(id).addEventListener("input", renderCompliance);
+    });
+    ["tipo-ativo", "idade", "ano-base"].forEach((id) => {
+      document.getElementById(id).addEventListener("input", renderTroca);
+    });
+    ["qtd-note", "qtd-desk", "preco-sodimm", "preco-udimm"].forEach((id) => {
+      document.getElementById(id).addEventListener("input", renderOrcamento);
+    });
+    ["acao", "numero-chamado", "nome-ativo", "resumo"].forEach((id) => {
+      document.getElementById(id).addEventListener("input", renderChamado);
+    });
+
+    document.getElementById("copiar-texto").addEventListener("click", async () => {
+      const aviso = document.getElementById("aviso-copia");
+      const campo = document.getElementById("texto-chamado");
+      try {
+        await navigator.clipboard.writeText(campo.value);
+        aviso.textContent = "Texto copiado.";
+      } catch (erro) {
+        campo.focus();
+        campo.select();
+        aviso.textContent = "Seu navegador bloqueou a cópia automática. O texto está selecionado.";
+      }
+    });
+
+    renderCompliance();
+    renderTroca();
+    renderOrcamento();
+    renderChamado();
+    aplicarContato();
+  </script>
+</body>
+</html>
